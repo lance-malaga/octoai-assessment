@@ -17,6 +17,8 @@
  *
  */
 
+import { useEffect, useState } from "react";
+
 const API_ENDPOINT = "https://66f44b0177b5e88970990f5f.mockapi.io/users";
 
 type User = {
@@ -26,3 +28,56 @@ type User = {
   avatar: string; // This is a URL to an image
 };
 
+export default function Users () {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect (() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch(API_ENDPOINT);
+        const data: User[] = await response.json();
+        
+        // Sort users by using the "createdAt" in descending order
+        const sortedUsers = data.sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        setUsers(sortedUsers);
+      }
+      catch (error) {
+        setError(error instanceof Error ? error.message : "Unknown error")
+        console.error('Error fetching data:', error);
+      }
+      finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUsers();
+  }, [])
+
+  return (
+    <div>
+      <h2>User List</h2>
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error}</p>}
+      {!loading && !error && (
+        <ul>
+          {users.map((user) => (
+            <li key={user.id}>
+              <div>
+                <img src={user.avatar} alt={`${user.name}'s avatar`} width={50} height={50} />
+                <div>
+                  <strong>{user.name}</strong>
+                  <p>{new Date(user.createdAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  )
+}
