@@ -31,7 +31,6 @@ type User = {
 export default function Users () {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect (() => {
     const fetchUsers = async () => {
@@ -47,7 +46,6 @@ export default function Users () {
         setUsers(sortedUsers);
       }
       catch (error) {
-        setError(error instanceof Error ? error.message : "Unknown error")
         console.error('Error fetching data:', error);
       }
       finally {
@@ -62,13 +60,12 @@ export default function Users () {
     <div>
       <h2>User List</h2>
       {loading && <p>Loading...</p>}
-      {error && <p>Error: {error}</p>}
-      {!loading && !error && (
+      {!loading && (
         <ul>
           {users.map((user) => (
             <li key={user.id}>
               <div>
-                <img src={user.avatar} alt={`${user.name}'s avatar`} width={50} height={50} />
+                <img src={user.avatar} alt={`${user.name}'s avatar image`} width={50} height={50} />
                 <div>
                   <strong>{user.name}</strong>
                   <p>{new Date(user.createdAt).toLocaleDateString()}</p>
